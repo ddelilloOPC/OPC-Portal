@@ -1,0 +1,23 @@
+.main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+.topBar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+.heading { font-size: 1.75rem; font-weight: 700; color: var(--color-text-primary); }
+.topActions { display: flex; align-items: center; gap: 0.75rem; }
+.backLink { font-size: 0.875rem; color: var(--color-text-secondary); }
+.newBtn { background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+.newBtn:hover { background: var(--color-primary-dark); }
+.tableWrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.table th { background: var(--color-primary-light); color: var(--color-primary); font-weight: 600; padding: 0.75rem 1rem; text-align: left; white-space: nowrap; }
+.table td { padding: 0.75rem 1rem; border-top: 1px solid var(--color-border); vertical-align: middle; }
+.inactive td { opacity: 0.55; }
+.urlCell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badgeActive { background: #e6f4ea; color: var(--color-success); font-size: 0.75rem; font-weight: 600; padding: 0.125rem 0.625rem; border-radius: 100px; }
+.badgeInactive { background: #f5f5f5; color: var(--color-text-muted); font-size: 0.75rem; font-weight: 600; padding: 0.125rem 0.625rem; border-radius: 100px; }
+.actions { display: flex; gap: 0.5rem; white-space: nowrap; }
+.actionBtn { background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.25rem 0.625rem; font-size: 0.8125rem; cursor: pointer; color: var(--color-text-secondary); }
+.actionBtn:hover { background: var(--color-primary-light); color: var(--color-primary); border-color: var(--color-primary); }
+.deleteBtn { color: var(--color-danger); border-color: var(--color-danger); }
+.deleteBtn:hover { background: var(--color-danger-bg); color: var(--color-danger); }
+.state { color: var(--color-text-secondary); text-align: center; padding: 3rem 0; }
+.stateError { color: var(--color-danger); text-align: center; padding: 3rem 0; }
+.unauthorized { color: var(--color-danger); text-align: center; padding: 3rem 0; font-size: 1.125rem; }

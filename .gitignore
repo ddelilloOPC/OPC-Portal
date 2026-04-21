@@ -1,0 +1,46 @@
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Flask / pytest
+flask_session/
+.pytest_cache/
+*.log
+
+# ── Node / Vite ──────────────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# Vite build output (also the Flask static folder it writes into)
+frontend/dist/
+backend/app/static/dist/
+
+# ── Environment files ────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+# Keep example files
+!.env.example
+
+# ── OS / Editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Azurite local storage ────────────────────────────────────────────────────
+.azurite/

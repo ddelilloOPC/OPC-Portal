@@ -1,0 +1,52 @@
+{
+  "auth": {
+    "signIn": "Sign in with Microsoft",
+    "signOut": "Sign out",
+    "welcome": "Welcome to OPC Portal",
+    "subtitle": "Sign in with your Microsoft account to access OPC applications and Copilot agents.",
+    "error": "Authentication failed. Please try again."
+  },
+  "portal": {
+    "title": "OPC Portal",
+    "subtitle": "Your gateway to OPC applications and tools",
+    "noLinks": "No links available.",
+    "loading": "Loading..."
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "manageLinks": "Manage Links",
+    "backToPortal": "Back to Portal",
+    "newLink": "New Link",
+    "editLink": "Edit Link",
+    "deleteLink": "Delete Link",
+    "confirmDelete": "Are you sure you want to delete this link?",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "noLinks": "No links yet. Create the first one."
+  },
+  "links": {
+    "title": "Title",
+    "description": "Description",
+    "url": "URL",
+    "category": "Category",
+    "order": "Display Order",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "actions": "Actions"
+  },
+  "errors": {
+    "unauthorized": "You are not authorized to view this page.",
+    "notFound": "Page not found.",
+    "serverError": "A server error occurred. Please try again.",
+    "networkError": "Network error. Please check your connection."
+  }
+}
