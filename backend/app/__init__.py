@@ -3,7 +3,9 @@ from flask import Flask, send_from_directory
 from flask_session import Session
 from app.core.config import Config
 from app.auth.microsoft import auth_bp, init_oauth
+from app.auth.local import local_bp
 from app.api.routes import api_bp
+from app.api.admin import admin_bp
 
 
 def create_app(test_config=None):
@@ -20,7 +22,9 @@ def create_app(test_config=None):
     Session(app)
     init_oauth(app)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(local_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(admin_bp)
     _register_frontend_routes(app, dist)
     return app
 

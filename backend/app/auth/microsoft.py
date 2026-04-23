@@ -36,8 +36,4 @@ def callback():
 @auth_bp.route("/logout")
 def logout():
     session.clear()
-    tenant = Config.MICROSOFT_TENANT_ID
-    return redirect(
-        "https://login.microsoftonline.com/" + tenant + "/oauth2/v2.0/logout"
-        + "?post_logout_redirect_uri=http://localhost:5173"
-    )
+    return redirect(Config.AZURE_POST_LOGOUT_REDIRECT_URI)

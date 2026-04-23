@@ -1,9 +1,42 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/AuthContext'
+import { api, ApiError } from '../../lib/api/client'
 import { t } from '../../lib/i18n'
 import styles from './LoginPage.module.css'
 
 export default function LoginPage() {
-  const { login } = useAuth()
+  const { login, refresh } = useAuth()
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(f => ({ ...f, [field]: e.target.value }))
+    setError('')
+  }
+
+  const handleLocalLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setSubmitting(true)
+    try {
+      await api.post('/auth/local/login', form)
+      await refresh()
+      navigate('/', { replace: true })
+    } catch (err: unknown) {
+      const e = err as ApiError
+      if (e.status === 403 && e.message?.includes('pending')) {
+        navigate('/pending', { replace: true })
+      } else {
+        setError(e.message ?? t('auth.error'))
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.card}>
@@ -14,6 +47,33 @@ export default function LoginPage() {
           <MicrosoftIcon />
           {t('auth.signIn')}
         </button>
+
+        <div className={styles.divider}><span>{t('auth.orSignInWithEmail')}</span></div>
+
+        <form onSubmit={handleLocalLogin} className={styles.localForm} noValidate>
+          {error && <p className={styles.localError}>{error}</p>}
+          <input
+            className={styles.localInput}
+            type="email" placeholder={t('auth.email')}
+            value={form.email} onChange={set('email')}
+            autoComplete="email" required
+          />
+          <input
+            className={styles.localInput}
+            type="password" placeholder={t('auth.password')}
+            value={form.password} onChange={set('password')}
+            autoComplete="current-password" required
+          />
+          <button type="submit" className={styles.localBtn} disabled={submitting}>
+            {submitting ? '...' : t('auth.signInLocal')}
+          </button>
+        </form>
+
+        <p className={styles.registerHint}>
+          <button className={styles.registerLink} onClick={() => navigate('/register')}>
+            {t('auth.registerLink')}
+          </button>
+        </p>
       </div>
     </div>
   )

@@ -20,3 +20,5 @@ class Config:
     AZURE_STORAGE_BLOB_NAME = os.environ.get("AZURE_STORAGE_BLOB_NAME", "links.json")
     ADMIN_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
     REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://localhost:5000/auth/callback")
+    AZURE_POST_LOGOUT_REDIRECT_URI = os.environ.get("AZURE_POST_LOGOUT_REDIRECT_URI", "http://localhost:8000")
+    USERS_BLOB_NAME = os.environ.get("USERS_BLOB_NAME", "users.json")

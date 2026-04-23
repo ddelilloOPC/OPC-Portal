@@ -1,5 +1,10 @@
 const BASE = ''
 
+export interface ApiError extends Error {
+  status: number
+  body: unknown
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
@@ -8,8 +13,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    const err = new Error((body as { error?: string }).error ?? res.statusText) as Error & { status: number }
+    const err = new Error((body as { error?: string }).error ?? res.statusText) as ApiError
     err.status = res.status
+    err.body = body
     throw err
   }
   if (res.status === 204) return undefined as T

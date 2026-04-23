@@ -14,4 +14,19 @@ export interface User {
   email: string
   name: string
   role: 'admin' | 'user'
+  auth_provider?: string
+}
+
+export interface ManagedUser {
+  id: string
+  full_name: string
+  email: string
+  role: 'admin' | 'user'
+  status: 'pending' | 'approved' | 'rejected'
+  auth_provider: string
+  created_at: string
+  updated_at: string
+  approved_at: string | null
+  approved_by: string | null
+  last_login_at: string | null
 }
