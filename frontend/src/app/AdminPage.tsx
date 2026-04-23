@@ -7,6 +7,7 @@ import { t } from '../lib/i18n'
 import { Link, ManagedUser } from '../types'
 import { api } from '../lib/api/client'
 import LinkForm from '../components/admin/LinkForm'
+import SetTempPasswordModal from '../components/admin/SetTempPasswordModal'
 import styles from './AdminPage.module.css'
 
 type Tab = 'links' | 'users'
@@ -18,6 +19,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('links')
   const [editing, setEditing] = useState<Link | null>(null)
   const [creating, setCreating] = useState(false)
+  const [settingTempPw, setSettingTempPw] = useState<ManagedUser | null>(null)
 
   if (user?.role !== 'admin') {
     return <div><Header /><main className={styles.main}><p className={styles.unauthorized}>{t('errors.unauthorized')}</p></main></div>
@@ -116,6 +118,13 @@ export default function AdminPage() {
 
         {tab === 'users' && (
           <>
+            {settingTempPw && (
+              <SetTempPasswordModal
+                user={settingTempPw}
+                onDone={() => { setSettingTempPw(null); refreshUsers() }}
+                onCancel={() => setSettingTempPw(null)}
+              />
+            )}
             {usersLoading && <p className={styles.state}>{t('common.loading')}</p>}
             {usersError && <p className={styles.stateError}>{usersError}</p>}
             {!usersLoading && !usersError && users.length === 0 && <p className={styles.state}>{t('admin.noUsers')}</p>}
@@ -150,6 +159,9 @@ export default function AdminPage() {
                           )}
                           {u.status !== 'rejected' && (
                             <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleReject(u)}>{t('admin.reject')}</button>
+                          )}
+                          {u.auth_provider === 'local' && u.status === 'approved' && (
+                            <button className={styles.actionBtn} onClick={() => setSettingTempPw(u)}>{t('admin.setTempPassword')}</button>
                           )}
                         </td>
                       </tr>

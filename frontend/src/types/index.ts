@@ -15,6 +15,7 @@ export interface User {
   name: string
   role: 'admin' | 'user'
   auth_provider?: string
+  mustChangePassword?: boolean
 }
 
 export interface ManagedUser {

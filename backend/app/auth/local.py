@@ -70,11 +70,52 @@ def login():
         return json_error("Your account has been deactivated.", 403)
 
     user_service.update_last_login(email)
+    must_change = bool(user.get("must_change_password"))
     session["user"] = {
         "email": user["email"],
         "name": user["full_name"],
         "role": user["role"],
         "auth_provider": "local",
+        "mustChangePassword": must_change,
     }
     session.permanent = True
-    return jsonify(user_service.safe_user(user))
+    return jsonify({**user_service.safe_user(user), "mustChangePassword": must_change})
+
+
+@local_bp.route("/change-password", methods=["POST"])
+def change_password():
+    session_user = session.get("user")
+    if not session_user:
+        return json_error("Unauthorized", 401)
+
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    new_password = data.get("new_password") or ""
+    confirm = data.get("confirm_password") or ""
+
+    if not current_password or not new_password or not confirm:
+        return json_error("All fields are required.", 400)
+
+    if len(new_password) < 8:
+        return json_error("Password must be at least 8 characters.", 422)
+    if not re.search(r"[A-Za-z]", new_password) or not re.search(r"\d", new_password):
+        return json_error("Password must contain at least one letter and one digit.", 422)
+    if new_password != confirm:
+        return json_error("Passwords do not match.", 422)
+
+    user = user_service.get_by_email(session_user["email"])
+    if not user:
+        return json_error("User not found.", 404)
+
+    if not verify_password(current_password, user["password_hash"]):
+        return json_error("Current password is incorrect.", 400)
+
+    if verify_password(new_password, user["password_hash"]):
+        return json_error("New password must differ from the current password.", 422)
+
+    new_hash = hash_password(new_password)
+    updated = user_service.change_password(user["id"], new_hash)
+
+    # Clear the force-change flag from the session
+    session["user"] = {**session["user"], "mustChangePassword": False}
+    return jsonify(user_service.safe_user(updated))

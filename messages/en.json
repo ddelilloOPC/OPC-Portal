@@ -55,7 +55,22 @@
     "userLastLogin": "Last Login",
     "statusPending": "Pending",
     "statusApproved": "Approved",
-    "statusRejected": "Rejected"
+    "statusRejected": "Rejected",
+    "setTempPassword": "Set Temporary Password",
+    "setTempPasswordTitle": "Set Temporary Password",
+    "setTempPasswordHint": "The user will be required to change this password on next login.",
+    "tempPassword": "Temporary password",
+    "confirmTempPassword": "Confirm temporary password"
+  },
+  "changePassword": {
+    "title": "Change Your Password",
+    "subtitle": "You must set a new password before continuing.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "submit": "Change Password",
+    "submitting": "Saving...",
+    "success": "Password changed successfully."
   },
   "links": {
     "title": "Title",

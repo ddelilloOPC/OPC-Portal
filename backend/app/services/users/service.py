@@ -83,6 +83,30 @@ def update_last_login(email: str) -> None:
             return
 
 
+def set_temp_password(user_id: str, password_hash: str) -> dict | None:
+    users = _read()
+    for u in users:
+        if u["id"] == user_id:
+            u["password_hash"] = password_hash
+            u["must_change_password"] = True
+            u["updated_at"] = _now()
+            _write(users)
+            return u
+    return None
+
+
+def change_password(user_id: str, new_hash: str) -> dict | None:
+    users = _read()
+    for u in users:
+        if u["id"] == user_id:
+            u["password_hash"] = new_hash
+            u["must_change_password"] = False
+            u["updated_at"] = _now()
+            _write(users)
+            return u
+    return None
+
+
 def safe_user(user: dict) -> dict:
     """Return user record without the password hash."""
     return {k: v for k, v in user.items() if k != "password_hash"}
