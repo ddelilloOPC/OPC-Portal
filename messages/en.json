@@ -18,7 +18,8 @@
     "registerSubtitle": "Register to request access to OPC Portal.",
     "pendingTitle": "Account Pending Approval",
     "pendingMessage": "Your account has been created and is awaiting approval by an administrator. You will be able to sign in once your access has been approved.",
-    "backToLogin": "Back to login"
+    "backToLogin": "Back to login",
+    "orSignInWithMicrosoft": "or sign in with Microsoft"
   },
   "portal": {
     "title": "OPC Portal",

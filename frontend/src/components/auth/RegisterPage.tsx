@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api/client'
 import { t } from '../../lib/i18n'
+import logo from '../../assets/img/logo.png'
 import styles from './RegisterPage.module.css'
 
 interface FieldErrors {
@@ -47,7 +48,7 @@ export default function RegisterPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}><span className={styles.logoText}>OPC</span></div>
+        <img src={logo} alt="OPC" className={styles.logoImg} />
         <h1 className={styles.title}>{t('auth.registerTitle')}</h1>
         <p className={styles.subtitle}>{t('auth.registerSubtitle')}</p>
 

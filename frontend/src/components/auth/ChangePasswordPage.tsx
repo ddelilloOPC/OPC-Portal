@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/AuthContext'
 import { api, ApiError } from '../../lib/api/client'
 import { t } from '../../lib/i18n'
+import logo from '../../assets/img/logo.png'
 import styles from './LoginPage.module.css'
 
 export default function ChangePasswordPage() {
@@ -39,7 +40,7 @@ export default function ChangePasswordPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}><span className={styles.logoText}>OPC</span></div>
+          <img src={logo} alt="OPC" className={styles.logoImg} />
         <h1 className={styles.title}>{t('changePassword.title')}</h1>
         <p className={styles.subtitle}>{t('changePassword.subtitle')}</p>
         <form onSubmit={handleSubmit} className={styles.localForm} noValidate>

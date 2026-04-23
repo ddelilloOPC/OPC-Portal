@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/AuthContext'
 import { api, ApiError } from '../../lib/api/client'
 import { t } from '../../lib/i18n'
+import logo from '../../assets/img/logo.png'
 import styles from './LoginPage.module.css'
 
 export default function LoginPage() {
@@ -40,37 +41,57 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <div className={styles.logo}><span className={styles.logoText}>OPC</span></div>
+        <img src={logo} alt="OPC" className={styles.logoImg} />
+
         <h1 className={styles.title}>{t('auth.welcome')}</h1>
         <p className={styles.subtitle}>{t('auth.subtitle')}</p>
+
+        <form onSubmit={handleLocalLogin} className={styles.localForm} noValidate>
+          {error && <p className={styles.localError}>{error}</p>}
+
+          <input
+            className={styles.localInput}
+            type="email"
+            placeholder={t('auth.email')}
+            value={form.email}
+            onChange={set('email')}
+            autoComplete="email"
+            required
+          />
+
+          <input
+            className={styles.localInput}
+            type="password"
+            placeholder={t('auth.password')}
+            value={form.password}
+            onChange={set('password')}
+            autoComplete="current-password"
+            required
+          />
+
+          <button
+            type="submit"
+            className={styles.localBtn}
+            disabled={submitting}
+          >
+            {submitting ? '...' : t('auth.signInLocal')}
+          </button>
+        </form>
+
+        <div className={styles.divider}>
+          <span>{t('auth.orSignInWithMicrosoft')}</span>
+        </div>
+
         <button className={styles.loginButton} onClick={login}>
           <MicrosoftIcon />
           {t('auth.signIn')}
         </button>
 
-        <div className={styles.divider}><span>{t('auth.orSignInWithEmail')}</span></div>
-
-        <form onSubmit={handleLocalLogin} className={styles.localForm} noValidate>
-          {error && <p className={styles.localError}>{error}</p>}
-          <input
-            className={styles.localInput}
-            type="email" placeholder={t('auth.email')}
-            value={form.email} onChange={set('email')}
-            autoComplete="email" required
-          />
-          <input
-            className={styles.localInput}
-            type="password" placeholder={t('auth.password')}
-            value={form.password} onChange={set('password')}
-            autoComplete="current-password" required
-          />
-          <button type="submit" className={styles.localBtn} disabled={submitting}>
-            {submitting ? '...' : t('auth.signInLocal')}
-          </button>
-        </form>
-
         <p className={styles.registerHint}>
-          <button className={styles.registerLink} onClick={() => navigate('/register')}>
+          <button
+            className={styles.registerLink}
+            onClick={() => navigate('/register')}
+          >
             {t('auth.registerLink')}
           </button>
         </p>

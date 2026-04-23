@@ -1,3 +1,4 @@
+import logo from '../../assets/img/logo.png'
 import { useAuth } from '../../features/auth/AuthContext'
 import { t } from '../../lib/i18n'
 import styles from './Header.module.css'
@@ -8,8 +9,9 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.inner}>
         <a href="/" className={styles.brand}>
-          <span className={styles.brandBadge}>OPC</span>
-          <span className={styles.brandName}>{t('portal.title')}</span>
+          <img src={logo} alt="OPC" className={styles.logoImg} />
+          <span className={styles.brandDivider} />
+          <span className={styles.brandPortal}>Portal</span>
         </a>
         <div className={styles.actions}>
           {user && (
