@@ -29,11 +29,12 @@
   },
   "admin": {
     "title": "Admin Panel",
-    "manageLinks": "Manage Links",
+    "manageLinks": "Admin Panel",
     "manageUsers": "Manage Users",
     "tabLinks": "Links",
     "tabUsers": "Users",
     "backToPortal": "Back to Portal",
+    "returnHome": "Return to Home",
     "newLink": "New Link",
     "editLink": "Edit Link",
     "deleteLink": "Delete Link",
@@ -91,8 +92,8 @@
   },
   "errors": {
     "unauthorized": "You are not authorized to view this page.",
-    "notFound": "Page not found.",
-    "serverError": "A server error occurred. Please try again.",
+    "accessDenied": "Access denied",
+    "adminOnly": "You don't have permission to view this page.",
     "networkError": "Network error. Please check your connection."
   }
 }

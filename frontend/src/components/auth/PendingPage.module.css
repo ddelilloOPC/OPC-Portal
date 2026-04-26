@@ -1,7 +1,7 @@
-.container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, #eef2f8 0%, #f4f6fa 55%, #e9eef6 100%); padding: 2rem 1rem; }
-.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 3rem 2.5rem; width: 100%; max-width: 420px; text-align: center; box-shadow: var(--shadow-lg); }
-.logoImg { height: 48px; width: auto; display: block; margin: 0 auto 1.875rem; }
-.title { font-size: 1.375rem; font-weight: 700; color: var(--color-text-primary); margin: 0 0 1rem; }
-.message { font-size: 0.9375rem; color: var(--color-text-secondary); line-height: 1.7; margin: 0 0 2rem; }
-.backLink { display: inline-block; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-sm); padding: 0.6875rem 1.75rem; font-size: 0.9375rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.15s; }
-.backLink:hover { background: var(--color-primary-dark); text-decoration: none; }
+.container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(150deg, #eaeff8 0%, #f3f6fb 50%, #e8edf6 100%); padding: 2rem 1rem; }
+.card { background: var(--color-surface); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: 3rem 2.75rem; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 8px 40px rgba(16,24,40,0.10), 0 2px 8px rgba(16,24,40,0.05); }
+.logoImg { height: 44px; width: auto; display: block; margin: 0 auto 2rem; }
+.title { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin: 0 0 1rem; letter-spacing: -0.02em; }
+.message { font-size: 0.9375rem; color: var(--color-text-muted); line-height: 1.7; margin: 0 0 2rem; }
+.backLink { display: inline-flex; align-items: center; justify-content: center; background: var(--gradient-primary); color: #fff; border: none; border-radius: var(--radius-md); padding: 0.8125rem 1.875rem; font-size: 0.9375rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: box-shadow var(--transition-fast), transform var(--transition-fast); box-shadow: 0 2px 8px rgba(28,61,110,0.25); letter-spacing: 0.01em; }
+.backLink:hover { box-shadow: 0 4px 14px rgba(28,61,110,0.32); transform: translateY(-1px); text-decoration: none; }
