@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Env files
+.env
+backend/.env
+frontend/.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+
+# Flask session
+backend/flask_session/
+
+# Tests
+backend/tests/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+backend/app/static/dist/
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
