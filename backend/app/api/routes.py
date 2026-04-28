@@ -12,6 +12,15 @@ def me():
     user = session.get("user")
     if not user:
         return json_error("Unauthorized", 401)
+
+    from app.services.users import service as user_service
+    stored = user_service.get_by_email(user["email"])
+    if stored:
+        live_role = stored["role"]
+        live_status = stored.get("status", "approved")
+        if user.get("role") != live_role or user.get("status") != live_status:
+            session["user"] = {**user, "role": live_role, "status": live_status}
+            user = session["user"]
     return jsonify(user)
 
 @api_bp.route("/links", methods=["GET"])

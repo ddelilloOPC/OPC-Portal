@@ -107,6 +107,40 @@ def change_password(user_id: str, new_hash: str) -> dict | None:
     return None
 
 
+def upsert_microsoft_user(full_name: str, email: str) -> dict:
+    users = _read()
+    existing = next((u for u in users if u["email"] == email.lower()), None)
+    if existing:
+        changed = False
+        if existing.get("auth_provider") != "microsoft":
+            existing["auth_provider"] = "microsoft"
+            changed = True
+        existing["last_login_at"] = _now()
+        if changed:
+            existing["updated_at"] = _now()
+        _write(users)
+        return existing
+    from app.auth.roles import get_role
+    user = {
+        "id": str(uuid.uuid4()),
+        "full_name": full_name,
+        "email": email.lower(),
+        "password_hash": None,
+        "role": get_role(email.lower()),
+        "status": "approved",
+        "auth_provider": "microsoft",
+        "created_at": _now(),
+        "updated_at": _now(),
+        "approved_at": _now(),
+        "approved_by": "microsoft_sso",
+        "last_login_at": _now(),
+    }
+    users.append(user)
+    _write(users)
+    return user
+
+
 def safe_user(user: dict) -> dict:
-    """Return user record without the password hash."""
-    return {k: v for k, v in user.items() if k != "password_hash"}
+    result = {k: v for k, v in user.items() if k != "password_hash"}
+    result.setdefault("auth_provider", "local")
+    return result

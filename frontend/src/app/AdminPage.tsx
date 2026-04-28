@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Header from '../components/layout/Header'
 import { useLinks } from '../features/links/useLinks'
 import { useUsers } from '../features/users/useUsers'
@@ -51,9 +51,17 @@ const IcoKey = () => (
     <path fillRule="evenodd" d="M8 7a5 5 0 1 1 3.61 4.804l-1.903 1.903A1 1 0 0 1 9 14H8v1a1 1 0 0 1-1 1H6v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2a1 1 0 0 1 .293-.707L7.196 10.39A5.002 5.002 0 0 1 8 7zm5-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" clipRule="evenodd" />
   </svg>
 )
+const IcoMicrosoft = () => (
+  <svg width="12" height="12" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+    <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+    <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+    <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+    <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+  </svg>
+)
 
 export default function AdminPage() {
-  const { user } = useAuth()
+  const { user, refresh: refreshAuth } = useAuth()
   const { links, loading: linksLoading, error: linksError, refresh: refreshLinks } = useLinks()
   const { users, loading: usersLoading, error: usersError, refresh: refreshUsers } = useUsers()
   const [tab, setTab] = useState<Tab>('links')
@@ -61,6 +69,17 @@ export default function AdminPage() {
   const [creating, setCreating] = useState(false)
   const [settingTempPw, setSettingTempPw] = useState<ManagedUser | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Link | null>(null)
+
+  // Links filters
+  const [linkSearch, setLinkSearch] = useState('')
+  const [linkStatusFilter, setLinkStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [linkCategoryFilter, setLinkCategoryFilter] = useState('all')
+
+  // Users filters
+  const [userSearch, setUserSearch] = useState('')
+  const [userStatusFilter, setUserStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [userRoleFilter, setUserRoleFilter] = useState<'all' | 'admin' | 'user'>('all')
+  const [userProviderFilter, setUserProviderFilter] = useState<'all' | 'local' | 'microsoft'>('all')
 
   if (user?.role !== 'admin') {
     return <div><Header /><main className={styles.main}><p className={styles.unauthorized}>{t('errors.unauthorized')}</p></main></div>
@@ -95,6 +114,9 @@ export default function AdminPage() {
   const handleRoleChange = async (u: ManagedUser, role: string) => {
     await api.patch(`/api/admin/users/${u.id}`, { role })
     refreshUsers()
+    // Re-fetch the current user's profile so that self-demotion is reflected
+    // immediately: the early-return check below will then render access denied.
+    await refreshAuth()
   }
 
   const statusBadge = (status: ManagedUser['status']) => {
@@ -103,9 +125,41 @@ export default function AdminPage() {
     return <span className={cls}>{label}</span>
   }
 
-  const existingCategories = Array.from(
-    new Set(links.map(l => (l.category || '').trim().toUpperCase()).filter(Boolean))
-  ).sort()
+  const providerBadge = (provider: ManagedUser['auth_provider']) => {
+    if (provider === 'microsoft') {
+      return <span className={styles.badgeMicrosoft}><IcoMicrosoft />{t('admin.providerMicrosoft')}</span>
+    }
+    return <span className={styles.badgeLocal}>{t('admin.providerLocal')}</span>
+  }
+
+  const existingCategories = useMemo(() =>
+    Array.from(new Set(links.map(l => (l.category || '').trim().toUpperCase()).filter(Boolean))).sort(),
+    [links]
+  )
+
+  const filteredLinks = useMemo(() => {
+    const q = linkSearch.trim().toLowerCase()
+    return links
+      .filter(l => {
+        if (q && !l.title.toLowerCase().includes(q) && !l.category.toLowerCase().includes(q) && !l.href.toLowerCase().includes(q)) return false
+        if (linkStatusFilter === 'active' && !l.isActive) return false
+        if (linkStatusFilter === 'inactive' && l.isActive) return false
+        if (linkCategoryFilter !== 'all' && (l.category || '').trim().toUpperCase() !== linkCategoryFilter) return false
+        return true
+      })
+      .sort((a, b) => (a.category || '').trim().toUpperCase().localeCompare((b.category || '').trim().toUpperCase()) || a.order - b.order)
+  }, [links, linkSearch, linkStatusFilter, linkCategoryFilter])
+
+  const filteredUsers = useMemo(() => {
+    const q = userSearch.trim().toLowerCase()
+    return users.filter(u => {
+      if (q && !u.full_name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false
+      if (userStatusFilter !== 'all' && u.status !== userStatusFilter) return false
+      if (userRoleFilter !== 'all' && u.role !== userRoleFilter) return false
+      if (userProviderFilter !== 'all' && u.auth_provider !== userProviderFilter) return false
+      return true
+    })
+  }, [users, userSearch, userStatusFilter, userRoleFilter, userProviderFilter])
 
   return (
     <div>
@@ -138,41 +192,58 @@ export default function AdminPage() {
             )}
             {linksLoading && <p className={styles.state}>{t('common.loading')}</p>}
             {linksError && <p className={styles.stateError}>{linksError}</p>}
-            {!linksLoading && !linksError && links.length === 0 && (
-              <div className={styles.sectionCard}>
-                <p className={styles.state}>{t('admin.noLinks')}</p>
-              </div>
-            )}
-            {links.length > 0 && (
+            {!linksLoading && !linksError && (
               <div className={styles.sectionCard}>
                 <div className={styles.sectionHeader}>
                   <span className={styles.sectionTitle}>{t('admin.tabLinks')}</span>
-                  <span className={styles.sectionCount}>{links.length}</span>
+                  <span className={styles.sectionCount}>{filteredLinks.length}/{links.length}</span>
                 </div>
-                <div className={styles.tableWrap}>
-                  <table className={styles.table}>
-                    <thead><tr>
-                      <th>{t('links.title')}</th><th>{t('links.category')}</th><th>{t('links.url')}</th>
-                      <th className={styles.colCenter}>{t('links.order')}</th><th>Status</th><th className={styles.thRight}>{t('common.actions')}</th>
-                    </tr></thead>
-                    <tbody>
-                      {links.sort((a, b) => (a.category || '').trim().toUpperCase().localeCompare((b.category || '').trim().toUpperCase()) || a.order - b.order).map((link) => (
-                        <tr key={link.id} className={!link.isActive ? styles.inactive : ''}>
-                          <td>{link.title}</td>
-                          <td>{link.category}</td>
-                          <td className={styles.urlCell}><a href={link.href} target="_blank" rel="noopener noreferrer" title={link.href}>{link.href}</a></td>
-                          <td className={styles.colCenter}>{link.order}</td>
-                          <td><span className={link.isActive ? styles.badgeActive : styles.badgeInactive}>{link.isActive ? t('links.active') : t('links.inactive')}</span></td>
-                          <td className={styles.actions}>
-                            <button className={`${styles.actionBtn} ${styles.editBtn}`} onClick={() => { setEditing(link); setCreating(false) }}><IcoEdit />{t('admin.editLink')}</button>
-                            <button className={`${styles.actionBtn} ${styles.toggleBtn}`} onClick={() => handleToggleActive(link)}>{link.isActive ? <><IcoEyeOff />{t('admin.deactivate')}</> : <><IcoEye />{t('admin.activate')}</>}</button>
-                            <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleDelete(link)}><IcoTrash />{t('admin.deleteLink')}</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className={styles.filterBar}>
+                  <input
+                    className={styles.filterInput}
+                    type="search"
+                    placeholder={t('admin.filterSearchLinks')}
+                    value={linkSearch}
+                    onChange={e => setLinkSearch(e.target.value)}
+                  />
+                  <select className={styles.filterSelect} value={linkStatusFilter} onChange={e => setLinkStatusFilter(e.target.value as typeof linkStatusFilter)}>
+                    <option value="all">{t('admin.filterAllStatuses')}</option>
+                    <option value="active">{t('links.active')}</option>
+                    <option value="inactive">{t('links.inactive')}</option>
+                  </select>
+                  <select className={styles.filterSelect} value={linkCategoryFilter} onChange={e => setLinkCategoryFilter(e.target.value)}>
+                    <option value="all">{t('admin.filterAllCategories')}</option>
+                    {existingCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
+                {filteredLinks.length === 0 ? (
+                  <p className={styles.state}>{links.length === 0 ? t('admin.noLinks') : t('admin.noFilterResults')}</p>
+                ) : (
+                  <div className={styles.tableWrap}>
+                    <table className={styles.table}>
+                      <thead><tr>
+                        <th>{t('links.title')}</th><th>{t('links.category')}</th><th>{t('links.url')}</th>
+                        <th className={styles.colCenter}>{t('links.order')}</th><th>Status</th><th className={styles.thRight}>{t('common.actions')}</th>
+                      </tr></thead>
+                      <tbody>
+                        {filteredLinks.map((link) => (
+                          <tr key={link.id} className={!link.isActive ? styles.inactive : ''}>
+                            <td data-label="Title">{link.title}</td>
+                            <td data-label="Category">{link.category}</td>
+                            <td data-label="URL" className={styles.urlCell}><a href={link.href} target="_blank" rel="noopener noreferrer" title={link.href}>{link.href}</a></td>
+                            <td data-label="Order" className={styles.colCenter}>{link.order}</td>
+                            <td data-label="Status"><span className={link.isActive ? styles.badgeActive : styles.badgeInactive}>{link.isActive ? t('links.active') : t('links.inactive')}</span></td>
+                            <td data-label="Actions" className={styles.actions}>
+                              <button className={`${styles.actionBtn} ${styles.editBtn}`} onClick={() => { setEditing(link); setCreating(false) }}><IcoEdit />{t('admin.editLink')}</button>
+                              <button className={`${styles.actionBtn} ${styles.toggleBtn}`} onClick={() => handleToggleActive(link)}>{link.isActive ? <><IcoEyeOff />{t('admin.deactivate')}</> : <><IcoEye />{t('admin.activate')}</>}</button>
+                              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleDelete(link)}><IcoTrash />{t('admin.deleteLink')}</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -189,57 +260,83 @@ export default function AdminPage() {
             )}
             {usersLoading && <p className={styles.state}>{t('common.loading')}</p>}
             {usersError && <p className={styles.stateError}>{usersError}</p>}
-            {!usersLoading && !usersError && users.length === 0 && (
-              <div className={styles.sectionCard}>
-                <p className={styles.state}>{t('admin.noUsers')}</p>
-              </div>
-            )}
-            {users.length > 0 && (
+            {!usersLoading && !usersError && (
               <div className={styles.sectionCard}>
                 <div className={styles.sectionHeader}>
                   <span className={styles.sectionTitle}>{t('admin.tabUsers')}</span>
-                  <span className={styles.sectionCount}>{users.length}</span>
+                  <span className={styles.sectionCount}>{filteredUsers.length}/{users.length}</span>
                 </div>
-                <div className={styles.tableWrap}>
-                  <table className={styles.table}>
-                    <thead><tr>
-                      <th>{t('admin.userName')}</th><th>{t('admin.userEmail')}</th>
-                      <th>{t('admin.userStatus')}</th><th>{t('admin.userRole')}</th>
-                      <th>{t('admin.userRegistered')}</th><th className={styles.thRight}>{t('common.actions')}</th>
-                    </tr></thead>
-                    <tbody>
-                      {users.map((u) => (
-                        <tr key={u.id}>
-                          <td>{u.full_name}</td>
-                          <td>{u.email}</td>
-                          <td>{statusBadge(u.status)}</td>
-                          <td>
-                            <select
-                              className={styles.roleSelect}
-                              value={u.role}
-                              onChange={e => handleRoleChange(u, e.target.value)}
-                            >
-                              <option value="user">user</option>
-                              <option value="admin">admin</option>
-                            </select>
-                          </td>
-                          <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                          <td className={styles.actions}>
-                            {u.status !== 'approved' && (
-                              <button className={`${styles.actionBtn} ${styles.approveBtn}`} onClick={() => handleApprove(u)}><IcoCheck />{t('admin.approve')}</button>
-                            )}
-                            {u.status !== 'rejected' && (
-                              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleReject(u)}><IcoX />{t('admin.reject')}</button>
-                            )}
-                            {u.auth_provider === 'local' && u.status === 'approved' && (
-                              <button className={`${styles.actionBtn} ${styles.tempPwBtn}`} onClick={() => setSettingTempPw(u)}><IcoKey />{t('admin.setTempPassword')}</button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className={styles.filterBar}>
+                  <input
+                    className={styles.filterInput}
+                    type="search"
+                    placeholder={t('admin.filterSearchUsers')}
+                    value={userSearch}
+                    onChange={e => setUserSearch(e.target.value)}
+                  />
+                  <select className={styles.filterSelect} value={userStatusFilter} onChange={e => setUserStatusFilter(e.target.value as typeof userStatusFilter)}>
+                    <option value="all">{t('admin.filterAllStatuses')}</option>
+                    <option value="pending">{t('admin.statusPending')}</option>
+                    <option value="approved">{t('admin.statusApproved')}</option>
+                    <option value="rejected">{t('admin.statusRejected')}</option>
+                  </select>
+                  <select className={styles.filterSelect} value={userRoleFilter} onChange={e => setUserRoleFilter(e.target.value as typeof userRoleFilter)}>
+                    <option value="all">{t('admin.filterAllRoles')}</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                  </select>
+                  <select className={styles.filterSelect} value={userProviderFilter} onChange={e => setUserProviderFilter(e.target.value as typeof userProviderFilter)}>
+                    <option value="all">{t('admin.filterAllProviders')}</option>
+                    <option value="local">{t('admin.providerLocal')}</option>
+                    <option value="microsoft">{t('admin.providerMicrosoft')}</option>
+                  </select>
                 </div>
+                {filteredUsers.length === 0 ? (
+                  <p className={styles.state}>{users.length === 0 ? t('admin.noUsers') : t('admin.noFilterResults')}</p>
+                ) : (
+                  <div className={styles.tableWrap}>
+                    <table className={`${styles.table} ${styles.usersTable}`}>
+                      <thead><tr>
+                        <th>{t('admin.userName')}</th><th>{t('admin.userEmail')}</th>
+                        <th>{t('admin.userProvider')}</th><th>{t('admin.userStatus')}</th>
+                        <th>{t('admin.userRole')}</th><th>{t('admin.userRegistered')}</th>
+                        <th className={styles.thRight}>{t('common.actions')}</th>
+                      </tr></thead>
+                      <tbody>
+                        {filteredUsers.map((u) => (
+                          <tr key={u.id}>
+                            <td data-label="Name">{u.full_name}</td>
+                            <td data-label="Email">{u.email}</td>
+                            <td data-label="Provider">{providerBadge(u.auth_provider)}</td>
+                            <td data-label="Status">{statusBadge(u.status)}</td>
+                            <td data-label="Role">
+                              <select
+                                className={styles.roleSelect}
+                                value={u.role}
+                                onChange={e => handleRoleChange(u, e.target.value)}
+                              >
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                              </select>
+                            </td>
+                            <td data-label="Registered">{new Date(u.created_at).toLocaleDateString()}</td>
+                            <td data-label="Actions" className={styles.actions}>
+                              {u.status !== 'approved' && (
+                                <button className={`${styles.actionBtn} ${styles.approveBtn}`} onClick={() => handleApprove(u)}><IcoCheck />{t('admin.approve')}</button>
+                              )}
+                              {u.status !== 'rejected' && (
+                                <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={() => handleReject(u)}><IcoX />{t('admin.reject')}</button>
+                              )}
+                              {u.auth_provider === 'local' && u.status === 'approved' && (
+                                <button className={`${styles.actionBtn} ${styles.tempPwBtn}`} onClick={() => setSettingTempPw(u)}><IcoKey />{t('admin.setTempPassword')}</button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </>

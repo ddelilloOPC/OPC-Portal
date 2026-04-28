@@ -14,6 +14,7 @@ export interface User {
   email: string
   name: string
   role: 'admin' | 'user'
+  status?: 'pending' | 'approved' | 'rejected'
   auth_provider?: string
   mustChangePassword?: boolean
 }
@@ -24,7 +25,7 @@ export interface ManagedUser {
   email: string
   role: 'admin' | 'user'
   status: 'pending' | 'approved' | 'rejected'
-  auth_provider: string
+  auth_provider: 'local' | 'microsoft'
   created_at: string
   updated_at: string
   approved_at: string | null

@@ -114,6 +114,12 @@
   gap: 0.75rem;
   justify-content: flex-end;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .overlay { padding: 1rem; }
+  .cancelBtn, .saveBtn { flex: 1; }
 }
 
 .cancelBtn {

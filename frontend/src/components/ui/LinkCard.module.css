@@ -48,3 +48,8 @@
   color: var(--color-text-muted);
   word-break: break-all;
 }
+
+@media (max-width: 480px) {
+  .card { padding: 1.25rem; }
+  .card:hover { transform: translateY(-1px); }
+}

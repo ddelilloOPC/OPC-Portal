@@ -19,3 +19,8 @@
 .footer { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--color-text-secondary); }
 .footerLink { color: var(--color-accent); cursor: pointer; background: none; border: none; font-size: inherit; padding: 0; font-weight: 500; transition: color var(--transition-fast); }
 .footerLink:hover { color: var(--color-primary); text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .card { padding: 2rem 1.25rem; border-radius: var(--radius-lg); }
+  .title { font-size: 1.25rem; }
+}

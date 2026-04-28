@@ -18,6 +18,8 @@
     "registerSubtitle": "Register to request access to OPC Portal.",
     "pendingTitle": "Account Pending Approval",
     "pendingMessage": "Your account has been created and is awaiting approval by an administrator. You will be able to sign in once your access has been approved.",
+    "rejectedTitle": "Access Denied",
+    "rejectedMessage": "Your account access has been rejected by an administrator. Please contact your system administrator if you believe this is a mistake.",
     "backToLogin": "Back to login",
     "orSignInWithMicrosoft": "or sign in with Microsoft"
   },
@@ -51,6 +53,7 @@
     "confirmReject": "Are you sure you want to reject this user?",
     "userName": "Name",
     "userEmail": "Email",
+    "userProvider": "Provider",
     "userRole": "Role",
     "userStatus": "Status",
     "userRegistered": "Registered",
@@ -62,7 +65,16 @@
     "setTempPasswordTitle": "Set Temporary Password",
     "setTempPasswordHint": "The user will be required to change this password on next login.",
     "tempPassword": "Temporary password",
-    "confirmTempPassword": "Confirm temporary password"
+    "confirmTempPassword": "Confirm temporary password",
+    "providerLocal": "Email/Password",
+    "providerMicrosoft": "Microsoft",
+    "filterSearchLinks": "Search by title, category or URL…",
+    "filterSearchUsers": "Search by name or email…",
+    "filterAllStatuses": "All statuses",
+    "filterAllRoles": "All roles",
+    "filterAllProviders": "All providers",
+    "filterAllCategories": "All categories",
+    "noFilterResults": "No results match the current filters."
   },
   "changePassword": {
     "title": "Change Your Password",

@@ -41,15 +41,36 @@ def update_user(user_id):
     role = body.get("role")
     if role not in ("admin", "user"):
         return json_error("Invalid role. Must be 'admin' or 'user'.", 422)
+
+    target = user_service.get_by_id(user_id)
+    if not target:
+        return json_error("User not found", 404)
+
+    if role == "user" and target.get("role") == "admin":
+        admin_count = sum(1 for u in user_service.get_all_users() if u.get("role") == "admin")
+        if admin_count <= 1:
+            return json_error("Cannot remove the last admin. Promote another user first.", 422)
+
     updated = user_service.update_role(user_id, role)
     if not updated:
         return json_error("User not found", 404)
+
+    acting_email = session["user"]["email"]
+    if updated["email"] == acting_email:
+        session["user"] = {**session["user"], "role": role}
+
     return jsonify(user_service.safe_user(updated))
 
 
 @admin_bp.route("/users/<user_id>/set-temp-password", methods=["POST"])
 @admin_required
 def set_temp_password(user_id):
+    user = user_service.get_by_id(user_id)
+    if not user:
+        return json_error("User not found", 404)
+    if user.get("auth_provider") == "microsoft":
+        return json_error("Cannot set a password for a Microsoft account user.", 422)
+
     body = request.get_json(silent=True) or {}
     password = body.get("password") or ""
     confirm = body.get("confirm_password") or ""
@@ -62,10 +83,6 @@ def set_temp_password(user_id):
         return json_error("Password must contain at least one letter and one digit.", 422)
     if password != confirm:
         return json_error("Passwords do not match.", 422)
-
-    user = user_service.get_by_id(user_id)
-    if not user:
-        return json_error("User not found", 404)
 
     pw_hash = hash_password(password)
     updated = user_service.set_temp_password(user_id, pw_hash)

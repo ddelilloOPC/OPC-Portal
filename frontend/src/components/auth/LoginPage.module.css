@@ -167,3 +167,8 @@
 }
 
 .registerLink:hover { color: var(--color-primary); text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .card { padding: 2rem 1.25rem; border-radius: var(--radius-lg); }
+  .title { font-size: 1.25rem; }
+}

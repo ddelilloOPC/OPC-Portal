@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, session
 from authlib.integrations.flask_client import OAuth
 from app.core.config import Config
 from .roles import get_role
+from app.services.users import service as user_service
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 oauth = OAuth()
@@ -29,7 +30,14 @@ def callback():
     userinfo = token.get("userinfo") or oauth.microsoft.userinfo()
     email = (userinfo.get("email") or userinfo.get("preferred_username") or "").lower()
     name = userinfo.get("name") or email
-    session["user"] = {"email": email, "name": name, "role": get_role(email)}
+    stored = user_service.upsert_microsoft_user(name, email)
+    role = get_role(email)
+    session["user"] = {
+        "email": email,
+        "name": name,
+        "role": role,
+        "auth_provider": "microsoft",
+    }
     session.permanent = True
     return redirect("/")
 
